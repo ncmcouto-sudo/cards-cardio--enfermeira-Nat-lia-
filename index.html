@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#081f2d">
+<link rel="manifest" href="manifest.json">
+<title>Cards Cardio • Prof. Natália</title>
+<style>
+:root{--bg:#071923;--panel:#0d2937;--panel2:#123748;--text:#f5fbfc;--muted:#a9c3ca;--accent:#32d0c5;--accent2:#63a9ff;--gold:#ffd166}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#06151e,#0b2633);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{padding:24px 18px 18px;background:linear-gradient(135deg,#071923,#123c4c);border-bottom:1px solid #ffffff18;position:sticky;top:0;z-index:5}
+.brand{display:flex;gap:13px;align-items:center}.logo{width:52px;height:52px;border-radius:16px;background:#fff;color:#e44d5f;display:grid;place-items:center;font-size:28px;box-shadow:0 8px 25px #0005}
+h1{font-size:22px;margin:0}.sub{color:var(--muted);font-size:13px;margin-top:3px}
+main{max-width:980px;margin:auto;padding:16px}.search{display:flex;gap:8px}.search input{flex:1;padding:14px 16px;border:1px solid #ffffff12;border-radius:16px;background:#0b2230;color:white;outline:none}
+button{font:inherit;cursor:pointer}.topbtn{border:0;border-radius:15px;background:var(--accent);color:#06242a;padding:0 15px;font-weight:700}
+.chips{display:flex;gap:8px;overflow:auto;padding:14px 0}.chip{white-space:nowrap;border:1px solid #ffffff15;background:#0c2a38;color:#cce2e6;border-radius:20px;padding:9px 13px}.chip.active{background:var(--accent);color:#05252b;border-color:var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}.stat{background:#0c2937;border:1px solid #ffffff0d;border-radius:16px;padding:11px}.stat b{font-size:18px}.stat span{display:block;color:var(--muted);font-size:11px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.card{background:linear-gradient(145deg,#0e3040,#0b2532);border:1px solid #ffffff10;border-radius:20px;padding:15px;min-height:175px;box-shadow:0 8px 25px #0002;position:relative;overflow:hidden}.card:after{content:"";position:absolute;width:90px;height:90px;border-radius:50%;right:-35px;bottom:-35px;background:#32d0c515}.cat{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--accent);font-weight:800}.card h3{margin:7px 0 8px;font-size:17px}.desc{font-size:13px;color:#c6dce1;line-height:1.4}.fav{position:absolute;right:10px;top:10px;border:0;background:#ffffff10;color:#ffd166;border-radius:12px;width:34px;height:34px}
+.ecg{height:46px;margin:12px 0 4px;opacity:.95}.ecg svg{width:100%;height:100%}
+.modalbg{position:fixed;inset:0;background:#000b;display:none;align-items:flex-end;justify-content:center;z-index:20}.modal{background:#0a202c;width:min(720px,100%);max-height:92vh;overflow:auto;border-radius:26px 26px 0 0;padding:20px}.close{float:right;border:0;background:#ffffff12;color:white;border-radius:50%;width:36px;height:36px;font-size:20px}.modal h2{margin:8px 40px 8px 0}.key{background:#0f3443;border:1px solid #32d0c522;border-radius:17px;padding:15px;margin-top:14px;line-height:1.5}.actions{display:flex;gap:8px;margin-top:14px}.actions button{flex:1;padding:12px;border:0;border-radius:14px}.primary{background:var(--accent);color:#05252b;font-weight:800}.secondary{background:#ffffff10;color:white}
+.quizq{font-size:18px;font-weight:700;margin:18px 0}.option{display:block;width:100%;text-align:left;padding:13px;border:1px solid #ffffff15;background:#0c2a38;color:white;border-radius:14px;margin:8px 0}.score{font-size:36px;font-weight:900;color:var(--accent);text-align:center;margin:18px}
+footer{text-align:center;color:#78939b;font-size:11px;padding:25px 10px}
+@media(min-width:700px){.modalbg{align-items:center}.modal{border-radius:26px}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="logo">❤</div><div><h1>Cards Cardio • Prof. Natália</h1><div class="sub">Revisão rápida para Enfermagem Cardiológica</div></div></div></header>
+<main>
+<div class="search"><input id="search" placeholder="🔎 Pesquisar ECG, choque, drogas..."><button class="topbtn" onclick="startQuiz()">QUIZ</button><button class="topbtn" onclick="aboutTcc()">TCC</button></div>
+<div class="chips" id="chips"></div>
+<div class="stats"><div class="stat"><b id="n">30</b><span>cards</span></div><div class="stat"><b id="nf">0</b><span>favoritos</span></div><div class="stat"><b id="sc">—</b><span>última pontuação</span></div></div>
+<div class="grid" id="cards"></div>
+<footer>Protótipo educacional • conteúdo para revisão • siga prescrição, protocolos institucionais e diretrizes vigentes.</footer>
+</main>
+<div class="modalbg" id="bg"><div class="modal"><button class="close" onclick="closeM()">×</button><div id="body"></div></div></div>
+<script>
+const D=[
+["ECG","ECG: sequência de interpretação","Frequência → ritmo → eixo → intervalos → QRS → ST/T.","Use uma sequência sistemática e correlacione o traçado ao quadro clínico."],
+["ECG","Ritmo sinusal","Onda P precedendo cada QRS, com relação P-QRS organizada.","Avalie frequência, regularidade, PR e duração do QRS."],
+["ECG","Fibrilação atrial","Ritmo irregularmente irregular e ausência de ondas P organizadas.","Avalie frequência ventricular, sintomas e risco tromboembólico conforme protocolo."],
+["ECG","Flutter atrial","Atividade atrial organizada, frequentemente com ondas em padrão de 'serrote'.","A condução AV pode variar. Avalie estabilidade e resposta ventricular."],
+["ECG","Taquicardia supraventricular","Taquicardia geralmente regular, frequentemente com QRS estreito.","A prioridade é determinar estabilidade hemodinâmica."],
+["ECG","Taquicardia ventricular","Ritmo ventricular rápido, geralmente com QRS largo.","Pode reduzir o débito cardíaco; instabilidade exige abordagem imediata."],
+["ECG","Fibrilação ventricular","Atividade elétrica ventricular caótica, sem contração eficaz.","Ritmo de parada: iniciar RCP e seguir protocolo de desfibrilação."],
+["ECG","Bradicardia","Frequência cardíaca reduzida em relação ao contexto clínico.","Observe sintomas, perfusão, medicamentos e causas reversíveis."],
+["ECG","Bloqueios AV","Alterações na condução entre átrios e ventrículos.","Classifique o bloqueio pelo ECG e monitore repercussão clínica."],
+["Emergência","IAM com supra de ST","Alterações do ST em derivações compatíveis podem indicar oclusão coronariana aguda.","Acione o fluxo institucional de síndrome coronariana aguda."],
+["Emergência","Síndrome coronariana aguda","Inclui angina instável e infarto agudo do miocárdio.","Dor torácica exige avaliação clínica, ECG e marcadores conforme protocolo."],
+["Hemodinâmica","Débito cardíaco","DC = frequência cardíaca × volume sistólico.","Representa o volume bombeado pelo coração por unidade de tempo."],
+["Hemodinâmica","Índice cardíaco","Débito cardíaco ajustado à superfície corporal.","Relaciona o débito à dimensão corporal do paciente."],
+["Hemodinâmica","PAM","Estimativa da pressão média de perfusão sistêmica.","Interprete junto à perfusão, diurese, nível de consciência e contexto clínico."],
+["Hemodinâmica","Pré-carga","Relacionada ao enchimento ventricular antes da sístole.","Retorno venoso e volume intravascular influenciam a pré-carga."],
+["Hemodinâmica","Pós-carga","Resistência contra a qual o ventrículo ejeta o sangue.","Alterações da resistência vascular interferem na pós-carga."],
+["Hemodinâmica","Contratilidade","Capacidade do miocárdio de gerar força de contração.","Analise junto a pré-carga, pós-carga e função ventricular."],
+["Emergência","Choque cardiogênico","Hipoperfusão sistêmica causada por falha primária da função cardíaca.","Monitorização e tratamento da causa são fundamentais."],
+["Emergência","Insuficiência cardíaca","Síndrome em que o coração não atende adequadamente às demandas do organismo.","Observe congestão, perfusão, sinais vitais e resposta terapêutica."],
+["Emergência","Edema agudo de pulmão","Acúmulo de líquido pulmonar com comprometimento respiratório.","Priorize avaliação respiratória, oxigenação e tratamento conforme protocolo."],
+["Terapia","Noradrenalina","Vasopressor utilizado para aumentar o tônus vascular e a pressão de perfusão.","Administração e titulação devem seguir prescrição e protocolo institucional."],
+["Terapia","Dobutamina","Fármaco inotrópico que aumenta a contratilidade cardíaca.","Pode ser utilizado em situações selecionadas de baixo débito; monitorar resposta."],
+["Terapia","Vasopressina","Vasopressor com ação vascular.","Indicação, dose e titulação dependem da situação clínica e protocolo."],
+["Terapia","Nitroglicerina","Vasodilatador com importante efeito venoso em doses usuais.","Monitorar pressão arterial, sintomas e resposta terapêutica."],
+["Terapia","Nitroprussiato","Vasodilatador arterial e venoso de ação rápida.","Exige monitorização rigorosa e preparo/administração conforme protocolo."],
+["Emergência","Marca-passo","Dispositivo que fornece estímulos elétricos para manter frequência/condução adequada.","Avalie captura, sensibilidade, programação e condição do sítio."],
+["Emergência","Cardioversão × desfibrilação","Cardioversão é sincronizada; desfibrilação é não sincronizada.","A escolha depende do ritmo, presença de pulso e estabilidade clínica."],
+["Emergência","Gasometria + lactato","Gasometria avalia equilíbrio ácido-base e oxigenação; lactato auxilia na avaliação de metabolismo/perfusão.","Interprete resultados em conjunto e acompanhe tendências."],
+["Emergência","Potássio e arritmias","Alterações de K⁺ podem modificar condução e excitabilidade cardíaca.","Reconheça alterações e siga protocolo para correção e monitorização."],
+["Emergência","Segurança cardiológica","Conferir paciente, monitorização, acesso, prescrição, bombas e alarmes.","Comunicação e protocolos são parte essencial da segurança."]
+];
+let cat="Todos", fav=new Set(JSON.parse(localStorage.fav||"[]")), last=localStorage.score||"—";
+document.getElementById("sc").textContent=last;
+function ecg(){return `<div class="ecg"><svg viewBox="0 0 300 45" preserveAspectRatio="none"><polyline points="0,25 45,25 52,23 57,27 64,25 70,25 76,25 82,8 87,40 93,25 125,25 132,25 139,18 146,25 185,25 191,25 198,25 205,10 210,39 216,25 250,25 260,25 267,22 274,25 300,25" fill="none" stroke="#32d0c5" stroke-width="2"/></svg></div>`}
+function render(){let q=search.value.toLowerCase();let list=D.map((x,i)=>({x,i})).filter(o=>(cat==="Todos"||o.x[0]===cat)&&o.x.slice(1).join(" ").toLowerCase().includes(q));cards.innerHTML=list.map(o=>`<article class="card" onclick="openCard(${o.i})"><button class="fav" onclick="event.stopPropagation();toggle(${o.i})">${fav.has(o.i)?"★":"☆"}</button><div class="cat">${o.x[0]}</div><h3>${o.x[1]}</h3>${o.x[0]==="ECG"?ecg():""}<div class="desc">${o.x[2]}</div></article>`).join("");nf.textContent=fav.size;n.textContent=list.length}
+function chips(){let C=["Todos",...new Set(D.map(x=>x[0]))];chips.innerHTML=C.map(c=>`<button class="chip ${c===cat?"active":""}" onclick="cat='${c}';chips() ;render()">${c}</button>`).join("")}
+function toggle(i){fav.has(i)?fav.delete(i):fav.add(i);localStorage.fav=JSON.stringify([...fav]);render()}
+function openCard(i){let x=D[i];body.innerHTML=`<div class="cat">${x[0]}</div><h2>${x[1]}</h2>${x[0]==="ECG"?ecg():""}<p>${x[2]}</p><div class="key"><b>🧠 Revisão rápida</b><br>${x[3]}</div><div class="actions"><button class="primary" onclick="toggle(${i});openCard(${i})">${fav.has(i)?"★ Favorito":"☆ Favoritar"}</button><button class="secondary" onclick="quizOne(${i})">🧠 Quiz</button></div>`;bg.style.display="flex"}
+function quizOne(i){body.innerHTML=`<div class="cat">QUIZ</div><h2>${D[i][1]}</h2><div class="quizq">Qual é a principal ideia para lembrar?</div><button class="option" onclick="show(${i})">Ver resposta</button>`}
+function show(i){body.innerHTML=`<div class="cat">RESPOSTA</div><h2>${D[i][1]}</h2><div class="key">${D[i][2]}<br><br><b>Revisão:</b> ${D[i][3]}</div><div class="actions"><button class="primary" onclick="openCard(${i})">Voltar ao card</button></div>`}
+function startQuiz(){let score=0,total=5,idx=[...D.keys()].sort(()=>Math.random()-.5).slice(0,total),n=0;function q(){if(n>=total){localStorage.score=score+"/"+total;document.getElementById("sc").textContent=score+"/"+total;body.innerHTML=`<div class="cat">RESULTADO</div><div class="score">${score}/${total}</div><p style="text-align:center">Quiz concluído. Use o resultado apenas como revisão.</p><div class="actions"><button class="primary" onclick="closeM()">Fechar</button><button class="secondary" onclick="startQuiz()">Novo quiz</button></div>`;return}let i=idx[n];body.innerHTML=`<div class="cat">QUESTÃO ${n+1} DE ${total}</div><h2>${D[i][1]}</h2><div class="quizq">${D[i][3]}</div><button class="option" onclick="answer(true)">Entendi a ideia-chave ✓</button><button class="option" onclick="answer(false)">Preciso revisar ✕</button>`;function answer(ok){if(ok)score++;n++;q()}}q();bg.style.display="flex"}
+function aboutTcc(){body.innerHTML=`<div class="cat">PRODUTO EDUCACIONAL</div>
+<h2>Cards Cardio — Prof. Natália</h2>
+<p><b>Integração do card físico no crachá com o card digital no celular/tablet.</b></p>
+<div class="key"><b>Objetivo</b><br>Disponibilizar revisão rápida de conteúdos de Enfermagem Cardiológica em formato físico e digital, favorecendo estudo breve, recuperação ativa da informação e acesso portátil ao conteúdo.</div>
+<div class="key"><b>Como integra ao TCC</b><br>Os 30 temas do aplicativo correspondem à matriz dos 30 cards impressos. O card físico funciona como lembrete no ambiente de trabalho/estudo; o digital amplia o acesso, a busca, os favoritos e o quiz.</div>
+<div class="key"><b>Base científica</b><br>Revisões em educação em enfermagem e profissões da saúde descrevem o uso de aprendizagem móvel, flashcards eletrônicos e recuperação ativa como estratégias estudadas para apoiar aprendizagem. A literatura também aponta a necessidade de avaliar cuidadosamente desenvolvimento e implementação desses recursos.</div>
+<div class="key"><b>Natureza do produto</b><br>Protótipo educacional. Não foi apresentado como instrumento clinicamente validado e não substitui protocolos, prescrições, diretrizes ou treinamento supervisionado.</div>
+<div class="key"><b>Referências principais</b><br>
+Kim & Park (2019) — mobile learning em educação de enfermagem.<br>
+Van Hoof et al. (2023) — retrieval practice em educação de enfermagem.<br>
+Barrison et al. (2025) — flashcards eletrônicos em educação das profissões da saúde.</div>
+<div class="actions"><button class="primary" onclick="closeM()">Fechar</button></div>`;bg.style.display="flex"}
+function closeM(){bg.style.display="none"}
+search.oninput=render;chips();render();
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js");
+</script>
+</body></html>
